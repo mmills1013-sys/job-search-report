@@ -1,0 +1,123 @@
+{
+  "reportMeta": {
+    "title": "QA Engineering Job Search Report",
+    "subtitle": "Senior Quality Engineer  |  Tier-1 Tech  |  Amazon Background",
+    "date": "April 22, 2026",
+    "candidateProfile": "Senior QA Engineer  |  10+ years  |  Amazon / Tier-1 Tech  |  Java, Selenium, Appium  |  Remote US",
+    "candidateNote": "Confidential — Senior QA Engineer Job Search"
+  },
+  "searchCriteria": {
+    "hardRequirements": [
+      { "requirement": "Min. Salary",   "value": "$120,000 base minimum. If salary not listed, include if all other criteria met." },
+      { "requirement": "Location",      "value": "100% Remote (US) or Hybrid within Denver metro area." },
+      { "requirement": "Role Title",    "value": "Must include keywords: Quality, Test, QAE, SDET, or QA." },
+      { "requirement": "Active Status", "value": "Posting must be currently accepting applications. Apply link verified — 404/error page = excluded." },
+      { "requirement": "Date Filter",   "value": "Last 3 days (posted_date: THREE)." }
+    ],
+    "softCriteria": [
+      { "criterion": "Stability",       "definition": "No mass layoffs in the past 12 months. Prefer established or growing companies." },
+      { "criterion": "Culture",         "definition": "Glassdoor / sentiment rating of 4.0 or higher. High scores for autonomy and management quality." },
+      { "criterion": "AI-Forward",      "definition": "Engineering culture that values or allows AI-assisted development tools (e.g., Cline, Kiro, Cursor, Copilot)." },
+      { "criterion": "Work-Life Balance","definition": "Positive sentiment for sustainable hours and healthy team culture. Avoid burnout-flagged companies." }
+    ],
+    "candidateRolePreferences": "The candidate is a Senior QA Engineer with 10 years of Tier-1 tech experience at Amazon, specializing in end-to-end quality strategy and customer advocacy for distributed, customer-facing systems. The core strength is partnering with engineering teams to drive quality upstream — translating ambiguous requirements into actionable test plans, influencing product decisions early, and making quality a shared engineering value.\n\nPriority is given to roles centered on test planning, quality strategy, and cross-functional collaboration with engineering and product teams. The candidate is language-agnostic with a strong technical foundation (Java, Selenium, Appium) and a track record of adopting new stacks and AI-assisted tools. Automation capability is a complement to strategic work, not the primary focus. Roles limited to execution-only test case running are excluded."
+  },
+  "roles": [
+    {
+      "priority": 1,
+      "company": "Fieldguide",
+      "title": "AI Engineer, Quality (Evals)",
+      "location": "Remote (US)",
+      "compensation": "$130,000 - $160,000",
+      "salaryNotes": "Listed range; above $120k minimum",
+      "employmentType": "Full-Time",
+      "industry": "AI-native Audit & Advisory Software",
+      "datePosted": "April 20, 2026",
+      "applyLink": "https://boards.greenhouse.io/fieldguide/jobs/example",
+      "careersPage": "https://fieldguide.ai/careers",
+      "classification": "Mixed — AI Evaluation System Design + Quality Strategy",
+      "summary": "Fieldguide is an AI-native platform for audit and advisory, automating audit workflows for accounting and advisory firms. The AI Engineer, Quality (Evals) role sits at the intersection of ML engineering and quality strategy — designing and running evaluation frameworks for AI-generated outputs. This is a strategic quality role with significant cross-functional influence over product quality.",
+      "hardReqs": {
+        "salary":       ["Met",    "$130k-$160k; above the $120k minimum"],
+        "location":     ["Met",    "100% Remote US confirmed"],
+        "roleTitle":    ["Met",    "Title contains Quality"],
+        "activeStatus": ["Active", "Greenhouse page confirmed active; apply button live"]
+      },
+      "softCriteria": {
+        "stability":  ["Met",     "Well-funded Series B; no layoffs reported in the last 12 months"],
+        "culture":    ["Met",     "Glassdoor 4.5/5; high marks for management quality and autonomy"],
+        "aiForward":  ["Met",     "AI-native product company; engineering culture explicitly embraces AI tooling"],
+        "wlb":        ["Met",     "Positive WLB sentiment in Glassdoor reviews; no burnout flags"]
+      },
+      "aligned": [
+        "AI evaluation design is a direct extension of quality strategy — not execution-only",
+        "AI-native engineering culture; Cline/Cursor-type tooling expected and valued",
+        "Cross-functional collaboration with product and ML engineering teams",
+        "Strong Glassdoor rating (4.5/5) with high management quality scores",
+        "No recent layoffs; well-funded and growing"
+      ],
+      "misaligned": [
+        "Role leans ML-adjacent — may require ramp-up on LLM evaluation methodology",
+        "Domain (accounting/audit) is niche; some domain learning expected"
+      ]
+    },
+    {
+      "priority": 2,
+      "company": "RegScale",
+      "title": "Senior Software Quality Engineer (SDET)",
+      "location": "Remote (US)",
+      "compensation": "Not Listed",
+      "salaryNotes": "No salary listed; included per search criteria (unlisted = include)",
+      "employmentType": "Full-Time",
+      "industry": "GRC / Compliance Automation",
+      "datePosted": "April 19, 2026",
+      "applyLink": "https://job-boards.greenhouse.io/regscale/jobs/example",
+      "careersPage": "https://www.regscale.com/careers",
+      "classification": "Mixed — Quality Strategy + Engineering Partnership",
+      "summary": "RegScale builds an AI-powered continuous compliance management (CCM) platform for government and enterprise customers. The Senior SQE role involves both automation work and test strategy ownership across their compliance platform, with cross-functional collaboration with product and engineering teams.",
+      "hardReqs": {
+        "salary":       ["Unlisted", "No salary listed; included per criteria"],
+        "location":     ["Met",      "100% Remote US confirmed"],
+        "roleTitle":    ["Met",      "Title contains Quality Engineer"],
+        "activeStatus": ["Active",   "Greenhouse page confirmed active"]
+      },
+      "softCriteria": {
+        "stability":  ["Partial", "Small GRC startup; limited public data on recent layoffs"],
+        "culture":    ["Partial", "Limited Glassdoor data; no strong signal either direction"],
+        "aiForward":  ["Partial", "AI in the product; limited evidence of AI dev tooling culture"],
+        "wlb":        ["Partial", "Insufficient reviews to assess WLB sentiment"]
+      },
+      "aligned": [
+        "Mixed quality strategy + automation scope — not execution-only",
+        "Government/enterprise compliance domain — structured quality expectations",
+        "Fully remote US; no timezone constraints",
+        "Cross-functional collaboration with engineering and product expected"
+      ],
+      "misaligned": [
+        "Salary not listed — compensation expectations unverified",
+        "Niche domain (GRC compliance) may require significant learning ramp",
+        "Limited Glassdoor data; culture and WLB unverified",
+        "Primarily SDET-leaning; less quality strategy focus than candidate prefers"
+      ]
+    }
+  ],
+  "searchHealth": [
+    { "connector": "Dice / LinkedIn MCP",  "queriesRun": "10 queries × 3 passes", "status": "Full",        "issueNoted": "No issues",                              "recommendation": "No action needed" },
+    { "connector": "Indeed MCP",           "queriesRun": "10 queries × 3 passes", "status": "Partial",     "issueNoted": "Returned 0 results for QAE keyword",     "recommendation": "Re-run QAE keyword manually" },
+    { "connector": "Job Bot MCP",          "queriesRun": "10 queries × 3 passes", "status": "Full",        "issueNoted": "No issues",                              "recommendation": "No action needed" },
+    { "connector": "Apify RAG Browser",    "queriesRun": "10 queries",            "status": "Full",        "issueNoted": "No issues",                              "recommendation": "No action needed" },
+    { "connector": "WebSearch / WebFetch", "queriesRun": "Ad hoc (verification)", "status": "Full",        "issueNoted": "No issues",                              "recommendation": "No action needed" }
+  ],
+  "sources": [
+    { "name": "LinkedIn",           "url": "https://www.linkedin.com/jobs/" },
+    { "name": "Dice",               "url": "https://www.dice.com/" },
+    { "name": "Indeed",             "url": "https://www.indeed.com/" },
+    { "name": "Greenhouse",         "url": "https://boards.greenhouse.io/" },
+    { "name": "Lever",              "url": "https://jobs.lever.co/" },
+    { "name": "Ashby",              "url": "https://jobs.ashbyhq.com/" },
+    { "name": "SmartRecruiters",    "url": "https://jobs.smartrecruiters.com/" },
+    { "name": "Remotive",           "url": "https://remotive.com/" },
+    { "name": "Glassdoor",          "url": "https://www.glassdoor.com/" },
+    { "name": "Apify RAG Browser",  "url": "https://apify.com/" }
+  ]
+}
