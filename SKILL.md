@@ -235,4 +235,152 @@ Query every connector for every keyword using **keyword + date filter only**. No
 - `salaryMin` / salary floor
 - `location` / city or metro filter
 
-Applying location or workplace filters at Stage 1 causes silent under-inclusion: roles tagged inconsistently by employers are dropped before you can read the description and confirm eligibility. All three fil
+Applying location or workplace filters at Stage 1 causes silent under-inclusion: roles tagged inconsistently by employers are dropped before you can read the description and confirm eligibility. All three filters belong in Stage 2.
+
+> **Exception:** The Hybrid Metro Pass (described below) is a separate, dedicated pass that intentionally includes a location parameter. It is not part of the standard Stage 1 keyword loop.
+
+Apply two filters to the raw Stage 1 results immediately:
+1. **Title filter** — keep only roles whose title contains a qualifying keyword. Apply loosely; err on the side of inclusion.
+2. **Date filter** — keep only roles posted within the date window. Apply per-connector rules (some connectors enforce this server-side; others require client-side filtering).
+
+Roles that fail either filter are dropped. Do not proceed to Stage 2 for them.
+
+---
+
+### Stage 2 — Detail pass (full descriptions + location/salary/active-status verification)
+
+For each role that survived Stage 1, fetch the full job description and apply the remaining filters in this order:
+
+1. **Location** — confirm the role meets the user's location requirement (see below).
+2. **Salary** — check the disclosed range against the compensation floor. Retain if unlisted. Apply the Partial/Gap rules from `references/report_spec.md`.
+3. **Active status** — verify the apply URL loads and is not a 404, closed, or expired page. Drop any role whose apply page is no longer live.
+
+#### Confirming remote eligibility (when user location = Remote)
+
+Employers apply the Remote structured tag inconsistently. To avoid dropping valid remote roles, confirm eligibility using **two complementary methods** — both operating on the Stage 1 survivor pool. No new connector queries are issued.
+
+**Pass A — Structured tag check:** Confirm whether the connector's `workplace_types: ["Remote"]` tag (or equivalent) is present on the role. Roles with this tag confirmed are remote-eligible.
+
+**Pass B — Description text scan:** For roles that did *not* have the Remote tag, read the job description body for explicit remote language ("remote", "telecommute", "work from home", "fully distributed"). A role passes if the description unambiguously describes remote work.
+
+A role passes the location check if it clears **either** Pass A or Pass B. A role that has neither the Remote structured tag nor any remote language in the description is dropped.
+
+> **Resolving contradictory signals:** If the structured metadata and the description text conflict (e.g., `isRemote: true` alongside `workFromHomeAvailability: FALSE`), the **description text is the source of truth**. Read the description body for an explicit statement and use that to decide. If the description is also ambiguous, mark `location` as `Partial` and note the conflict clearly so the candidate can clarify before applying.
+
+#### Hybrid Metro Pass (when user location includes a metro)
+
+The Remote workplace-type filter excludes hybrid roles entirely. To surface hybrid roles in the user's metro, run one additional dedicated pass per keyword with `location: "[Metro, State]"` and `workplace_types: ["Remote", "Hybrid"]`. Evaluate results against all hard requirements as normal.
+
+---
+
+### Handling large WebFetch responses
+
+Many ATS and job-board pages return HTML files large enough to exceed the context window. When WebFetch saves a file to disk instead of returning inline content:
+
+1. **Use targeted grep or Python extraction** — do not attempt to read the full file. Extract only the signals needed: salary patterns (`\$[\d,]+`), location keywords (`remote`, `hybrid`, `telecommute`, city names), and active-status indicators (`apply`, `closed`, `no longer accepting`). A Python regex like `.{0,150}(remote|salary|\$[\d,]+|closed|apply).{0,150}` gives clean, bounded context without loading the whole file.
+2. **Spawn a subagent for multiple large files in parallel** — if several files need parsing at once, dispatch a subagent with the exact file paths and extraction goals. This keeps the main context clean and allows parallel processing.
+3. **Never read an oversized file raw** — loading 300K+ chars of HTML into context risks exhausting the token budget before the report is generated.
+
+### Handling SPA / React ATS pages
+
+Some ATS platforms (Rippling, certain Greenhouse embeds, some Lever configurations) serve a JavaScript React shell as their raw HTTP response. WebFetch captures only this empty shell — the actual job content is loaded client-side and is absent from the saved file.
+
+**Detection:** If a fetched file is large (100K+ chars) but targeted grep returns zero hits for salary, location, or any job-description keywords, the page is almost certainly a React SPA.
+
+**Resolution:** Re-fetch using **Apify RAG Browser** instead of WebFetch. Apify executes JavaScript and returns the fully rendered page content as Markdown. Do not retry WebFetch on the same URL — it will produce the same empty shell.
+
+### Staffing agency and contract role handling
+
+When a role is posted by a staffing or consulting firm and the actual end-client employer is anonymous:
+
+- **Employment type:** Always mark as "Contract — W2 Through [Agency Name]". Never leave the contract nature implicit.
+- **Soft criteria:** Cannot be assessed for the unnamed client. Set all four soft criteria fields to `Partial` with the note: *"Actual employer is anonymous — soft criteria assessed for [Agency] as employer of record only; underlying client culture unverifiable."*
+- **Alignment:** Include a Misaligned bullet noting that culture, stability, and long-term fit cannot be verified without knowing the client.
+
+### Rate-limit handling
+
+**Proactive pacing — do this before any rate limit error occurs:** Wait 2–3 seconds between consecutive keyword queries on the same connector. Dice enforces a 200-requests-per-minute global limit shared across all clients; rapid back-to-back calls will exhaust the budget before all 10 keywords complete. Apply this pacing at the start of every connector loop, not only after a limit error occurs.
+
+If a connector throttles mid-search despite pacing, continue with other connectors and retry the throttled one after 1–2 minutes. Make at least two retry attempts before marking the connector as `Rate Limited` in the Search Health log.
+
+Keep a running log of which connectors returned results for which queries — you'll need it for the Search Health section of the report.
+
+---
+
+## Phase 5 — Generate the report
+
+The report is a Word (.docx) file saved to the user's workspace folder.
+
+### Step 1 — Read the spec and styling docs
+
+Before building the JSON input, read:
+- `references/report_spec.md` — exact content specification for each section and each role card field
+- `references/docx_styling.md` — visual design rules (colors, typography, heading styles, table patterns, status coding)
+
+These two files together define what the report must look like. The `generate_report.js` script implements this spec — feed it the right JSON and it handles all the styling automatically.
+
+### Step 2 — Install dependencies
+
+```bash
+cd <path-to-skill>/job-search-report
+npm install docx   # install docx-js if node_modules not already present
+```
+
+### Step 3 — Build the input JSON
+
+Model your input JSON on `assets/sample_input.json`. The SCHEMA comment at the top of `scripts/generate_report.js` documents every field. Key points:
+
+- `reportMeta.title` — use a role-specific title like "QA Engineering Job Search Report", not a generic one
+- `reportMeta.candidateNote` — footer left text, e.g. "Confidential — Senior QA Engineer Job Search"
+- `roles` — ordered by priority (1 = best fit). Populate `hardReqs` and `softCriteria` using the status keys: `Met`, `Active`, `Partial`, `Unlisted`, `Gap`
+- `searchCriteria.candidateRolePreferences` — write as flowing prose; use `\n` for paragraph breaks. Do NOT split into labelled sections (no "Identity:", "Priority:", etc.)
+- `searchHealth` — one row per connector; status must be one of: `Full`, `Partial`, `Rate Limited`, `Error`, `Unavailable`
+
+### Step 4 — Run the generator
+
+```bash
+node <path-to-skill>/job-search-report/scripts/generate_report.js input.json <output-path>.docx
+```
+
+### Step 5 — Validate
+
+```bash
+python <path-to-docx-skill>/scripts/office/validate.py <output-path>.docx
+```
+
+If validation fails, inspect the error, fix the JSON input or the script, and regenerate.
+
+### Step 6 — Deliver
+
+Save the final .docx to the user's selected workspace folder and present it with a `computer://` link. Keep the delivery message to one line summarizing how many roles were found.
+
+---
+
+## Critical formatting rules (summary)
+
+These are the most common mistakes — getting them wrong produces output that doesn't match the expected style:
+
+1. **Role card headers use Heading 2 WITH navy background**, not a separate table. The role's `#N  Title  —  Company` text is the Heading 2 paragraph itself, with `shading: { fill: "1B2A4A" }`. This makes it show in Word's nav pane AND serve as the visual banner.
+
+2. **Classification badge uses `2E4070` background** (medium navy, lighter than the header), italic gold text, and must include the `★ Classification:` prefix.
+
+3. **Sub-section labels within role cards use Heading 3**, not plain paragraphs. This means "Job Details", "Role Summary", "Hard Requirement Verification", "Soft Criteria Assessment", and "Profile Alignment" are all Heading 3 elements.
+
+4. **Section name spelling**: "Soft Criteria / Quality Ranking" (not "Quality Ranking (Soft Criteria)"). "Profile Alignment" (not "Aligned / Misaligned").
+
+5. **Hard requirements table columns**: "Requirement" | "Value / Filter Applied" (not "Criterion" | "Value").
+
+The bundled `generate_report.js` implements all of these rules correctly — lean on it rather than hand-rolling the docx structure.
+
+---
+
+## Principles
+
+- **Generic first, specific when needed.** The candidate might be a QA engineer, a product designer, a nurse, or anything else. The skill assumes only that the user wants ranked job listings in a Word document.
+- **Confirm before spending cycles.** Echo inputs back, check connector availability, get query plan approval — all before the expensive search phase.
+- **Keywords are role-only.** Location, workplace type, date, and salary are always structured filter parameters — never part of the keyword query string.
+- **Stage 1 is keyword + date only.** All other filters — workplace type, salary, location — belong in Stage 2.
+- **Pass A and Pass B are Stage 2 activities.** They confirm remote eligibility from the Stage 1 result pool. They are not new queries.
+- **SPA pages need Apify.** If WebFetch returns an empty React shell (large file, zero job-content matches), switch to Apify RAG Browser immediately.
+- **Verify before reporting.** Every role in the final report must have a live apply URL.
+- **Lean on the bundled script.** `scripts/generate_report.js` encodes the branded style and section structure. Hand-rolling a docx wastes time and introduces formatting drift.

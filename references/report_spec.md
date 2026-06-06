@@ -139,4 +139,54 @@ This is distinct from a role posted directly by a company with limited public in
 ### Priority Ordering Rules
 
 - **Priority 1**: Roles meeting most or all hard + soft criteria.
-- **Priority 2**: Roles with str
+- **Priority 2**: Roles with strong hard criteria but partial soft criteria gaps.
+- **Priority 3**: Roles with notable culture, stability, or WLB concerns — include for visibility but flag clearly.
+
+---
+
+## Section 4 — Summary Comparison Table
+
+Auto-populated from the `roles` array. No additional input needed.
+
+Columns: Priority # | Company (linked to careersPage) | Title | Salary | Location | Stability | Culture | AI-Forward
+
+---
+
+## Section 5 — Search Health & Warnings
+
+Populate `searchHealth` as an array, one entry per connector.
+
+| Field            | Values                                                              |
+|------------------|---------------------------------------------------------------------|
+| `connector`      | Platform name (e.g., "Dice / LinkedIn MCP", "Indeed MCP")         |
+| `queriesRun`     | e.g., "10 queries × 3 passes (Remote + keyword + Denver hybrid)"   |
+| `status`         | "Full", "Partial", "Rate Limited", "Error", or "Unavailable"       |
+| `issueNoted`     | Brief description or "No issues"                                    |
+| `recommendation` | Action item or "No action needed"                                   |
+
+**Status definitions:**
+
+- **Full** — All queries ran and returned results. This includes cases where rate limits occurred but were resolved through retries and all queries ultimately completed. Use `issueNoted` to mention rate-limiting as informational context if relevant, but do not downgrade to a lower status solely because retries were needed.
+- **Partial** — Some queries returned empty result sets, fewer results than expected, or were skipped due to connector limitations. Do NOT use Partial simply because retries were required — only use it when actual coverage gaps remain after all retry attempts.
+- **Rate Limited** — Throttling occurred and one or more queries were abandoned or produced incomplete results that could not be recovered through retries. Use only when throttling caused a real, unresolved coverage gap.
+- **Error** — Connector returned an error, timed out, or returned zero results for all queries with no recoverable path.
+- **Unavailable** — Connector was not loaded or accessible this session.
+
+If all connectors are "Full", the script will automatically print: "All connectors ran successfully. No known gaps in this report." Otherwise it prints the standard disclaimer.
+
+---
+
+## Section 6 — Sources & Platforms Used
+
+Populate `sources` as an array of `{ name, url }` objects. Include every platform, MCP, or tool used — job boards, ATS systems, research tools, company culture lookups.
+
+---
+
+## Content Quality Guidelines
+
+- **Role summary**: Write for someone who hasn't read the job description. Focus on what the candidate will actually do day-to-day, not just the company pitch.
+- **Verification notes**: Be specific. "Greenhouse page confirmed active — apply button present, no closed language" is better than "Active".
+- **Aligned bullets**: Lead with the strongest match. Quality strategy and upstream collaboration should be first if present.
+- **Misaligned bullets**: Be honest but constructive. State the concern, not a judgment.
+- **Classification**: When in doubt, call it "Mixed" and add a short descriptor. This is the most useful signal for the candidate at a glance.
+- **Contract roles**: Always call out contract duration and the agency name in the role card. Candidates need this to assess continuity risk before applying.
